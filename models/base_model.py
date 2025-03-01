@@ -2,20 +2,30 @@
 # Importing required modules
 import uuid
 from datetime import datetime
+import models
+
+
+
+strformat = '%Y-%m-%dT%H:%M:%S.%f'
 
 class BaseModel:
     """The is the base class that other classes inherits from"""
-    def __init__(self, id = None, created_at = None, updated_at = None):
-        """Instantiating the BaseModel class
-        
-        Args:
-            id: The unique value that identifies the object created
-            created_at: A datetime object that tells the time of creation
-            updated_at: A datetime object that tells the time of updating
-        """
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+    def __init__(self, *args, **kwargs):
+        """Instantiating the BaseModel class"""
+        if kwargs:
+            for key, value in kwargs.items():
+                if key != '__class__':
+                    setattr(self, key, value)
+
+            if hasattr(self, 'created_at') and isinstance(self.created_at, str):
+                self.created_at = datetime.fromisoformat(self.created_at)
+            if hasattr(self, 'updated_at') and isinstance(self.updated_at, str):
+                self.updated_at = datetime.fromisoformat(self.updated_at)
+        else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            models.storage.new(self)
 
 
     def __str__(self):
@@ -31,11 +41,15 @@ class BaseModel:
         """Updates with the new time when the function is called"""
 
         self.updated_at = datetime.now()
+        models.storage.save()
 
     def to_dict(self):
-        new_dict = self.__dict__
+        """Dictionary representation of the class object"""
+        new_dict = self.__dict__.copy()
         new_dict['__class__'] = self.__class__.__name__
-
+        new_dict['created_at'] = self.created_at.isoformat()  # Convert to string
+        new_dict['updated_at'] = self.updated_at.isoformat()  # Convert to string
+        
         return new_dict
     
 

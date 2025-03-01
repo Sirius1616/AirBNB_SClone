@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 class BaseModelTest(unittest.TestCase):
-    """THe class that inherits methods from the unittest module"""
+    """The class that inherits methods from the unittest module"""
 
     def setUp(self):
         """Teardown method to be used be other test methods"""
