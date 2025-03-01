@@ -78,7 +78,7 @@ class HBNBCommand(cmd.Cmd):
             return
         else:
             class_name = args[0]
-            if args[0] not in self.class_dict:
+            if class_name not in self.class_dict:
                 print("** class doesn't exist **")
                 return
             else:
@@ -89,15 +89,34 @@ class HBNBCommand(cmd.Cmd):
                     class_id = '{}.{}'.format(class_name, obj_id)
                     all_instance = storage.all()
                     result = ''
-                    for key, value in all_instance.items():
-                        if key != class_id:
-                            result = '** no instance found **'
-                        else:
-                            del all_instance[key]
-                            result = all_instance.save()
-                    print(result)
+                    if class_id not in all_instance:
+                        print("** no instance found **")
+                        return
+                    
+                    del all_instance[class_id]
+                    storage.save()
 
-                
+    def do_all(self, args):
+        """Prints all string representation of all instances based or not on the class name."""
+        args = args.split()
+        
+        # When the argument is just all and nothing more 
+        if len(args) == 0:
+            print(storage.all()) # Just prints all the objects already created
+        else:
+            instances = storage.all()
+            new = {}
+            for key, value in instances.items():
+                if args[0] == key.split('.')[0]:
+                    new[key] = value
+            if new:
+                print(new)
+            else:
+                print("** class doesn't exist **")
+            
+                    
+    #def do_update(self):
+
             
 
 if __name__ == '__main__':
