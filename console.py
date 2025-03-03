@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 import cmd
 from models.base_model import BaseModel
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 from models import storage
-import re
+
+
 
 
 class HBNBCommand(cmd.Cmd):
@@ -10,7 +17,8 @@ class HBNBCommand(cmd.Cmd):
         it inherited methods from the cmd module which shall be overriden just soon*
     """
     prompt = '(hbnb)'
-    class_dict = {'BaseModel' : BaseModel}
+    class_dict = {'BaseModel' : BaseModel, 'User' : User, 'Place' : Place, 'State' : \
+                  State, 'City' : City, 'Amenity' : Amenity, 'Review' : Review}
     
     def do_quit(self, arg):
         """Quit command to exit the program"""
@@ -61,13 +69,10 @@ class HBNBCommand(cmd.Cmd):
                     obj_id = args[1]
                     class_id = '{}.{}'.format(class_name, obj_id)
                     all_instance = storage.all()
-                    result = ''
-                    for key, value in all_instance.items():
-                        if key != class_id:
-                            result = '** no instance found **'
-                        else:
-                            result = value
-                    print(result)
+                    if class_id not in all_instance:
+                        print("** No instance found")
+                    else:
+                        print(all_instance[class_id])
 
     def do_destroy(self, args):
         """ Deletes an instance based on the class name and id (save the change into the JSON file)"""
@@ -115,7 +120,42 @@ class HBNBCommand(cmd.Cmd):
                 print("** class doesn't exist **")
             
                     
-    #def do_update(self):
+    def do_update(self, args):
+        """Updates an instance based on the class name and id by adding or updating attribute"""
+        args = args.split()
+        num_args = len(args)
+        instances = storage.all()
+
+        if num_args < 1:
+            print("** class name missing **")
+            return
+        if args[0] not in self.class_dict:
+            print("** class doesn't exist **")
+            return
+        if num_args == 1:
+            print("** instance id missing **")
+            return
+
+        class_id = args[0] + '.' + args[1]
+
+        if class_id not in instances:
+            print("** no instance found **")
+            return
+        if num_args == 2:
+            print("** attribute name missing **")
+            return
+        if num_args == 3:
+            print("** value missing **")
+            return
+        
+        instance = instances[class_id]
+        attr = args[2]
+        val = args[3]
+
+        setattr(instance, attr, val)
+
+        instance.save()
+        
 
             
 
